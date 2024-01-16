@@ -1,4 +1,3 @@
-// Edited ver. for 3 cameras
 #include<iostream>
 #include<algorithm>
 #include<fstream>
@@ -33,14 +32,14 @@ int main(int argc, char **argv)
         return 1;
     }    
 
-    // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
 
+    ros::NodeHandle nodeHandler;
+
+    // 카메라 3대에 맞게 객체 생성
     ImageGrabber igb_1(&SLAM);
     ImageGrabber igb_2(&SLAM);
     ImageGrabber igb_3(&SLAM);
-
-    ros::NodeHandle nodeHandler;
 
     ros::Subscriber sub_1 = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage, &igb_1);
     ros::Subscriber sub_2 = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage, &igb_2);
@@ -48,10 +47,9 @@ int main(int argc, char **argv)
 
     ros::spin();
 
-    // Stop all threads
     SLAM.Shutdown();
 
-    // Save camera trajectory
+    // 카메라 궤적 저장 
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
 
     ros::shutdown();
